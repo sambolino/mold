@@ -1,0 +1,14 @@
+import os
+import sys
+
+NODE_DIR = os.path.dirname(os.path.abspath(__file__))
+NODES_DIR = os.path.dirname(NODE_DIR)
+NODESOFTWARE_DIR = os.path.dirname(NODES_DIR)
+
+sys.path.extend([NODE_DIR, NODES_DIR, NODESOFTWARE_DIR])
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "nodes.mold.settings")
+
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()
+

@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>MolD - Photodissociation Database</title>
+    <link rel="stylesheet" type="text/css" href="http://servo.aob.rs/mold/static/css/jquery-ui.css">
+    <link href="http://servo.aob.rs/mold/static/main.css" type="text/css" rel="stylesheet"/>
+    <link href="http://servo.aob.rs/mold/static/xmldisplay/XMLDisplay.css" type="text/css" rel="stylesheet"/>
+    <script src="http://servo.aob.rs/mold/static/xmldisplay/XMLDisplay.js" type="text/javascript"></script>
+    <script src="http://servo.aob.rs/mold/static/js/jquery-latest.min.js" type="text/javascript"></script>
+    <script src="http://servo.aob.rs/mold/static/js/jquery-ui.js" type="text/javascript"></script>
+    <script src="http://servo.aob.rs/mold/static/js/combo-ajax.js" type="text/javascript"></script>
+
+</head>
+<body>
+	<div id = "header">
+      <table width="100%">
+         <tr>
+            <td width="300">
+               <img src="http://servo.aob.rs/mold/static/images/if.jpg" title="IPB Logo" width='260px' />
+               <img src="http://servo.aob.rs/mold/static/images/aob.jpg" title="AOB Logo" width='260px' />
+            </td>
+            <td align="center">
+               <h2>Photodissociation - MolD database</h2><br />
+               <h5>
+               <a href="http://www.ipb.ac.rs/" target="_blank">Institute of Physics Belgrade</a>
+               ::<a href="http://www.aob.rs/" target="_blank"> Astronomical Observatory Belgrade</a>
+             </h5>
+            </td>
+            <td width="450">
+               <img src="http://servo.aob.rs/mold/static/images/photodissociation.jpg" title="photodissociation"/>
+            </td>
+         </tr>
+      </table>
+	</div>
+    
+	<div id="wrapper">
+    <div id="tabs">
+      <ul>
+        <li><a href="#tabs-1">individual cross sections</a></li>
+        <li><a href="#tabs-2">average thermal cross sections</a></li>
+        <li><a href="#tabs-3">plot</a></li>
+      </ul>
+      <div id="tabs-1">
+        <div class = "styled-select">
+	        <ul>{{ f.as_ul }}</ul>
+          <input id="generateXsams" type="submit" value="Search">
+        </div>   
+        <div id="results">
+             <div id="XMLHolder"></div>
+        </div>
+      </div>
+      <div id="tabs-2"> 
+        <div class="styled-select">
+          <ul>{{ s.as_ul }}</ul>
+          <input id="calculateSum" type="submit" value="Calculate">
+          <div id="SumHolder"></div>
+        </div>
+      </div>
+      <div id="tabs-3"> 
+        <div class="styled-select">
+          <ul>{{ p.as_ul }}</ul>
+          <input id="plot" type="submit" value="Plot">
+          <div id="PlotHolder"></div>
+        </div>
+      </div>
+        
+	</div>
+	    
+	<div id="footer">
+    <div id="citation"><h3>If you find this service (data) useful,
+      please cite the following paper
+      </h3><p>
+      Vujčič, V.; Jevremović, D.; Mihajlov, A. A.; Ignjatović, Lj. M.; Srećković, V. A.; Dimitrijević, M. S.; Malović, M.
+      MOL-D: A Collisional Database and Web Service within the Virtual Atomic and Molecular Data Center</p><p>
+      <b>Journal of Astrophysics and Astronomy, 2015, Volume 36, Issue 4, pp.693-703</b></p></div>
+            <img src="http://servo.aob.rs/mold/static/images/partners.jpg"/>
+	</div>
+</body>
+</html>

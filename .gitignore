@@ -1,0 +1,20 @@
+# Python-generated files
+__pycache__/
+*.py[cod]
+
+# Logs and backup copies
+*.log
+*.bak
+*~
+
+# Local credentials and production configuration
+.env
+.env.*
+!.env.example
+local_settings.py
+/settings.py
+/settings_default.py
+/wsgi.py
+
+# Review separately before including
+/data/
