@@ -18,3 +18,7 @@ local_settings.py
 
 # Review separately before including
 /data/
+/static/plots/
+
+# Editors
+.idea

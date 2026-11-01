@@ -131,3 +131,7 @@ EXAMPLE_QUERIES = [\
 SECRET_KEY = 'CHANGE_ME'
 
 QUERY_STORE_ACTIVE = True
+
+# Public URL prefix of this node. Override with an empty string for local
+# development so AJAX and static requests use the current host and port.
+MOLD_BASE_URL = 'http://servo.aob.rs/mold'
