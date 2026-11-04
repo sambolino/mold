@@ -42,6 +42,18 @@
     max-width: 1100px;
 }
 
+#IndividualPlotHolder {
+    clear: both;
+    margin: 20px auto 28px;
+    max-width: 1100px;
+}
+
+.IndividualPlot + .IndividualPlot {
+    border-top: 1px solid #d9deea;
+    margin-top: 18px;
+    padding-top: 18px;
+}
+
 .MoldChartCard {
     background: #fff;
     color: #172033;

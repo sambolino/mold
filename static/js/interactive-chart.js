@@ -140,6 +140,8 @@
         holder.innerHTML = '';
         var points = (data.points || []).map(function(point) {
             return {x: Number(point.x), y: Number(point.y)};
+        }).filter(function(point) {
+            return isFinite(point.x) && isFinite(point.y);
         }).sort(function(a, b) { return a.x - b.x; });
         if (points.length < 2) {
             holder.textContent = 'Not enough plottable data.';
@@ -147,6 +149,7 @@
         }
 
         var curve = pchipCurve(points, 400);
+        var curveLabel = data.curve_label || 'PCHIP interpolation';
         var xMin = points[0].x;
         var xMax = points[points.length - 1].x;
         var allY = points.concat(curve).map(function(point) { return point.y; });
@@ -177,7 +180,7 @@
         var svg = svgElement('svg', {
             viewBox: '0 0 ' + WIDTH + ' ' + HEIGHT,
             role: 'img',
-            'aria-label': data.title || 'Thermal average cross section chart'
+            'aria-label': data.title || 'Cross section chart'
         }, wrap);
         var tooltip = document.createElement('div');
         tooltip.className = 'MoldChartTooltip';
@@ -209,7 +212,7 @@
         var legend = svgElement('g', {transform: 'translate(' + MARGIN.left + ',8)'}, svg);
         svgElement('rect', {x: 0, y: 0, width: 390, height: 34, rx: 6, fill: '#fff', stroke: '#d0d5dd'}, legend);
         svgElement('line', {x1: 12, y1: 17, x2: 37, y2: 17, stroke: '#7c3aed', 'stroke-width': 2.4}, legend);
-        textElement(legend, 45, 21, data.curve_label || 'PCHIP interpolation', {'class': 'MoldChartLegend'});
+        textElement(legend, 45, 21, curveLabel, {'class': 'MoldChartLegend'});
         svgElement('circle', {cx: 237, cy: 17, r: 3.5, fill: '#64748b', 'fill-opacity': 0.45}, legend);
         textElement(legend, 250, 21, data.point_label || 'Values from DB', {'class': 'MoldChartLegend'});
 
@@ -252,7 +255,7 @@
             crosshair.setAttribute('x1', sx(predicted.x));
             crosshair.setAttribute('x2', sx(predicted.x));
             crosshair.style.opacity = 0.65;
-            tooltip.innerHTML = '<b>PCHIP interpolation</b><br>' +
+            tooltip.innerHTML = '<b>' + curveLabel + '</b><br>' +
                 data.x_label + ' = ' + formatNumber(predicted.x) + ' ' + data.x_unit + '<br>' +
                 data.y_label + ' = ' + formatNumber(predicted.y) + ' ' + data.y_unit + '<br>' +
                 '<span>Nearest DB value: ' + formatNumber(dbPoint.x) + ' ' + data.x_unit +

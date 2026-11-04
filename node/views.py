@@ -24,6 +24,7 @@ def index(request):
     return HttpResponse(html)
 
 CALCULATOR_TEMPERATURE_RANGE = (50.0, 50000.0)
+MAX_INDIVIDUAL_CHARTS = 20
 
 
 def _temperature_range(molecule):
@@ -256,6 +257,95 @@ def get_wavelengths(request, species_id):
         'temperature_min': temperature_min,
         'temperature_max': temperature_max,
     }), content_type='application/json')
+
+
+def individual_cross_sections(request, species_id):
+    """Return the same individual cross sections selected by the first tab."""
+    try:
+        molecule = Molecule.objects.get(inchikey=species_id)
+        processes = RadiativeProcess.objects.filter(
+            molecule_state__molecule=molecule
+        ).select_related('molecule_state', 'x', 'y').order_by(
+            'molecule_state__n', 'molecule_state__l', 'id'
+        )
+
+        filters = {}
+        for query_name, model_name in (('qnj', 'molecule_state__n'),
+                                       ('qnv', 'molecule_state__l')):
+            raw_value = request.GET.get(query_name, '')
+            if raw_value != '':
+                value = int(raw_value)
+                if value < 0:
+                    raise ValueError('%s must be a non-negative integer.' % query_name.upper())
+                filters[model_name] = value
+        processes = processes.filter(**filters)
+        process_count = processes.count()
+        if process_count > MAX_INDIVIDUAL_CHARTS:
+            raise ValueError(
+                'This search matches %s individual cross sections. '
+                'Enter QNJ and/or QNv to narrow the diagrams to at most %s.' % (
+                    process_count,
+                    MAX_INDIVIDUAL_CHARTS,
+                )
+            )
+
+        series = []
+        for process in processes:
+            if not process.x.data_values or not process.y.data_values:
+                continue
+            wavelengths = [_data_float(value) for value in process.x.data_values.split()]
+            cross_sections = [_data_float(value) for value in process.y.data_values.split()]
+            point_count = min(len(wavelengths), len(cross_sections))
+            if point_count < 2:
+                continue
+            state = process.molecule_state
+            state_parts = []
+            if state.n is not None:
+                state_parts.append('J=%s' % state.n)
+            if state.l is not None:
+                state_parts.append('v=%s' % state.l)
+            state_label = ', '.join(state_parts) or 'state %s' % state.id
+            series.append({
+                'title': 'Individual cross section: %s (%s)' % (
+                    molecule.chemical_formula, state_label
+                ),
+                'curve_label': 'PCHIP interpolation',
+                'point_label': 'Database data',
+                'x_label': process.x.parameter or 'Wavelength',
+                'x_unit': process.x.unit or 'nm',
+                'y_label': process.y.parameter or 'Cross section',
+                'y_unit': process.y.unit or 'cm2',
+                'points': [
+                    {'x': x, 'y': y}
+                    for x, y in zip(
+                        wavelengths[:point_count],
+                        cross_sections[:point_count],
+                    )
+                ],
+            })
+    except Molecule.DoesNotExist:
+        return HttpResponse(
+            json.dumps({'error': 'Choose an available molecule.'}),
+            content_type='application/json',
+            status=404,
+        )
+    except (TypeError, ValueError) as error:
+        return HttpResponse(
+            json.dumps({'error': str(error)}),
+            content_type='application/json',
+            status=400,
+        )
+
+    if not series:
+        return HttpResponse(
+            json.dumps({'error': 'No cross-section data match this search.'}),
+            content_type='application/json',
+            status=404,
+        )
+    return HttpResponse(
+        json.dumps({'series': series}),
+        content_type='application/json',
+    )
 
 def get_XY(request, species_id, n, l):
     molecule = Molecule.objects.get(inchikey=species_id)

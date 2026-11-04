@@ -204,6 +204,7 @@ $(document).ready(function(){
 
     $('#generateXsams').click(function() {
         xsamsDoc = null;
+        $('#IndividualPlotHolder').empty().removeClass('result error calculating');
         var searchString = "select * ";
         var nextClause = "where ";
   	    var validation = true;
@@ -235,7 +236,43 @@ $(document).ready(function(){
           var str = base_url + "/tap/sync?REQUEST=doQuery&LANG=VSS2&FORMAT=XSAMS&QUERY=" + searchString;
 	        //LoadXMLString("XMLHolder", '');
 	        document.getElementById('XMLHolder').innerHTML = 'Loading...';
-          LoadXML("XMLHolder",str); 
+          LoadXML("XMLHolder",str);
+
+          var selectedMolecule = $(molecules).val();
+          if (!selectedMolecule) {
+            $('#IndividualPlotHolder')
+              .html('Choose a molecule to display its cross-section diagrams.')
+              .addClass('error');
+            return;
+          }
+          var plotUrl = base_url + '/individual_cross_sections/' +
+            encodeURIComponent(selectedMolecule) + '/?qnj=' +
+            encodeURIComponent($(qnj).val()) + '&qnv=' +
+            encodeURIComponent($(qnv).val());
+          $('#IndividualPlotHolder')
+            .html('Loading diagrams...')
+            .addClass('calculating');
+          $.getJSON(plotUrl, function(data) {
+            var holder = document.getElementById('IndividualPlotHolder');
+            holder.innerHTML = '';
+            (data.series || []).forEach(function(series, index) {
+              var chart = document.createElement('div');
+              chart.className = 'IndividualPlot';
+              chart.id = 'IndividualPlot-' + index;
+              holder.appendChild(chart);
+              MoldInteractiveChart.render(chart, series);
+            });
+            $('#IndividualPlotHolder').removeClass('calculating error').addClass('result');
+          }).fail(function(xhr) {
+            var message = 'The individual cross-section diagrams could not be loaded.';
+            if (xhr.responseJSON && xhr.responseJSON.error) {
+              message = xhr.responseJSON.error;
+            }
+            $('#IndividualPlotHolder')
+              .html(message)
+              .removeClass('calculating result')
+              .addClass('error');
+          });
         }
     })
 
